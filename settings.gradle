@@ -1,0 +1,3 @@
+include ':bottomSheetGalleryPickerLibrary'
+include ':app'
+rootProject.name = "GalleryPicker"
