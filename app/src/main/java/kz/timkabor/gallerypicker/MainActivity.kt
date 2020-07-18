@@ -1,11 +1,12 @@
 package kz.timkabor.gallerypicker
 
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_main.*
 import kz.timkabor.bottomsheetgallerypickerlibrary.BottomSheetGalleryPicker
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), BottomSheetGalleryPicker.OnImagesSelectedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -21,6 +22,15 @@ class MainActivity : AppCompatActivity() {
                     R.string.imagePickerMultiLimit       //"You cannot select more than <max> images"
                 )
                 .show(supportFragmentManager)
+        }
+    }
+
+    override fun onImagesSelected(uris: List<Uri>) {
+        println(uris.size)
+        uris.forEach{uri ->
+            println(uri)
+            val type: String? = contentResolver.getType(uri)
+            println(type)
         }
     }
 }
