@@ -116,9 +116,7 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
                 recycler.smoothScrollToPosition(0)
             }
         }
-        tvHeader.text = getString(R.string.imagePickerSingle)
 
-        // btnGallery.setOnClickListener { launchGallery() }
         btnCamera.setOnClickListener { launchCamera() }
         btnDone.setOnClickListener {
             onImagesSelectedListener?.onImagesSelected(adapter.getSelectedImages())
@@ -137,7 +135,7 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
                 tvHeader.text = resources.getQuantityString(resTitleMultiMore, delta, delta)
             }
             count > multiSelectMax -> tvHeader.text = getString(resTitleMultiLimit, multiSelectMax)
-            else -> tvHeader.text = resources.getQuantityString(resTitleMulti, count, count)
+            else -> tvHeader.text = ""
         }
         btnDone.isEnabled = count in multiSelectMin..multiSelectMax
         if (btnDone.isEnabled) btnDone.visibility = View.VISIBLE
@@ -179,15 +177,19 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
         val items = ArrayList<Uri>()
 
         val columnIndex = data.getColumnIndex(MediaStore.Video.VideoColumns.DATA)
-
+        Thread().run{
         while (items.size < MAX_CURSOR_IMAGES && data.moveToNext()) {
             val itemLocation: String = data.getString(columnIndex)
-            val imageFile = File(itemLocation)
-            val videoUri = Uri.fromFile(imageFile)
-            items.add(videoUri)
+            val file = File(itemLocation)
+            println("${file.exists()} and $itemLocation")
+
+            if (file.exists()) {
+                val uri = Uri.fromFile(file)
+                items.add(uri)
+            }
         }
-        data.moveToFirst()
         adapter.itemList = items
+        }
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {

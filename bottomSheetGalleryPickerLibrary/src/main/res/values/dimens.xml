@@ -6,4 +6,6 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="peekHeight">460dp</dimen>
     <dimen name="columnSize">92dp</dimen>
+    <dimen name="durationViewSpacing">4dp</dimen>
+
 </resources>

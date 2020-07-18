@@ -5,8 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import kotlinx.android.synthetic.main.card_image.view.*
+import java.io.File
 
 sealed class ClickedGalleryItem {
     data class ImageItem(val uri: Uri) : ClickedGalleryItem()
@@ -41,18 +44,9 @@ class GalleryAdapter(private val clickListener: (ClickedGalleryItem) -> Unit,
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseIconViewHolder =
         LayoutInflater
             .from(parent.context)
-            .inflate(getLayoutForSpecificViewType(viewType), parent, false)
-            .let { view ->
-                when (viewType) {
-                    VIEW_TYPE_IMAGE -> BaseIconViewHolder.ImageIconViewHolder(view)
-                    else -> throw IllegalStateException("viewType $viewType not allowed")
-                }
-            }
+            .inflate(R.layout.card_image, parent, false)
+            .let { view -> BaseIconViewHolder(view) }
 
-    private fun getLayoutForSpecificViewType(viewType: Int) = when (viewType) {
-        VIEW_TYPE_IMAGE -> R.layout.card_image
-        else -> R.layout.card_special
-    }
 
     override fun getItemCount() = itemList.size
 
@@ -60,7 +54,7 @@ class GalleryAdapter(private val clickListener: (ClickedGalleryItem) -> Unit,
         return VIEW_TYPE_IMAGE
     }
     override fun onBindViewHolder(holder: BaseIconViewHolder, position: Int) {
-        (holder as? BaseIconViewHolder.ImageIconViewHolder)?.update(
+        holder.update(
             itemList[position],
             selection.contains(position),
             ::onImageItemClick
@@ -85,35 +79,40 @@ class GalleryAdapter(private val clickListener: (ClickedGalleryItem) -> Unit,
     }
 }
 
-sealed class BaseIconViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    class ImageIconViewHolder(view: View) : BaseIconViewHolder(view) {
-        private val ivImage = view.findViewById<ImageView>(R.id.ivImage)
-        private val ivSelect = view.findViewById<View>(R.id.ivSelect)
+class BaseIconViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private val ivImage = view.findViewById<ImageView>(R.id.ivImage)
+    private val ivSelect = view.findViewById<View>(R.id.ivSelect)
+    private val ivDuration = view.findViewById<View>(R.id.durationView)
+    private val ivDurationText = view.findViewById<TextView>(R.id.durationText)
 
-        private var clickListener: ((selectView: View, position: Int) -> Unit)? = null
+    private var clickListener: ((selectView: View, position: Int) -> Unit)? = null
 
-        init {
-            view.setOnClickListener { clickListener?.invoke(ivSelect, adapterPosition) }
-        }
-
-        fun update(
-            uri: Uri,
-            selected: Boolean,
-            clickListener: (selectView: View, position: Int) -> Unit
-        ){
-            this.clickListener = clickListener
-
-            if(selected) ivSelect.visibility = View.VISIBLE
-            else  ivSelect.visibility = View.INVISIBLE
-
-            Glide
-                .with(ivImage)
-                .load(uri)
-                .error(R.drawable.ic_broken_image)
-                .into(ivImage)
-        }
+    init {
+        view.setOnClickListener { clickListener?.invoke(ivSelect, adapterPosition) }
     }
 
-    class VideoIconViewHolder(view: View) : BaseIconViewHolder(view)
+    fun update(
+        uri: Uri,
+        selected: Boolean,
+        clickListener: (selectView: View, position: Int) -> Unit
+    ) {
+        this.clickListener = clickListener
+        if (uri.isVideo()) {
+            ivDuration.visibility = View.VISIBLE
+            ivDurationText.text = uri.getMediaDuration(ivDurationText.context).asData()
+        }
+        else {
+            ivDuration.visibility = View.INVISIBLE
+        }
+
+        if (selected) ivSelect.visibility = View.VISIBLE
+        else ivSelect.visibility = View.INVISIBLE
+
+        Glide
+            .with(ivImage)
+            .load(uri)
+            .error(R.drawable.ic_broken_image)
+            .into(ivImage)
+    }
 }
 

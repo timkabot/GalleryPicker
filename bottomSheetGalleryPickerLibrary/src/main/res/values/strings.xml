@@ -1,19 +1,20 @@
 <resources>
-    <string name="galleryPickerLoading">Loading…</string>
-    <string name="toastGalleryPickerNoWritePermission">Write storage permission not granted :(</string>
-    <string name="imagePickerLoading">Loading…</string>
-    <string name="imagePickerSingle">Please select an image or video</string>
-    <string name="imagePickerMultiLimit">You cannot select more than %1$d images</string>
+    <string name="galleryPickerLoading">Загрузка…</string>
+    <string name="toastGalleryPickerNoWritePermission">Нужно разрешение на редактирование файлов</string>
+    <string name="imagePickerLoading">Загрузка…</string>
+    <string name="imagePickerMultiLimit">Вы не можете выбрать больше чем %1$d файлов</string>
 
 
 <!--    Plurals     -->
     <plurals name="imagePickerMulti">
-        <item quantity="one">You have selected one image</item>
-        <item quantity="other">You have selected %1$d images</item>
+        <item quantity="one">Вы выбрали 1 файл</item>
+        <item quantity="two">Вы выбрали 2 файла</item>
+        <item quantity="few">Вы выбрали %1$d файла</item>
+        <item quantity="other">Вы выбрали %1$d файлов</item>
     </plurals>
     <plurals name="imagePickerMultiMore">
-        <item quantity="one">You have to select one more image</item>
-        <item quantity="other">You have to select %1$d more images</item>
+        <item quantity="one">Выберите файлы</item>
+        <item quantity="other">Нужно выбрать %1$d файлов</item>
     </plurals>
 
 </resources>
