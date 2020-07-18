@@ -5,6 +5,10 @@
 
 A modern image picker implemented as [BottomSheet](https://developer.android.com/reference/android/support/design/widget/BottomSheetDialogFragment).
 
+## Demo
+![Alt Text](https://media.giphy.com/media/Sv9JIkuxnqjRMKh9ot/giphy.gif)
+
+
 
 ## Features
 
