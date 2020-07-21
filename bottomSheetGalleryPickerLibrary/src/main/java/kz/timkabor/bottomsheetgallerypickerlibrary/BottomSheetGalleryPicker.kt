@@ -156,6 +156,11 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
         }
     }
 
+    val attachMediaOnClickListener = View.OnClickListener {
+        onImagesSelectedListener?.onImagesSelected(adapter.getSelectedImages())
+        dismissAllowingStateLoss()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initDimensions()
@@ -169,9 +174,9 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
             }
         }
 
-        btnDone.setOnClickListener {
-            onImagesSelectedListener?.onImagesSelected(adapter.getSelectedImages())
-            dismissAllowingStateLoss()
+        with(attachMediaOnClickListener) {
+            fabCollapsed.setOnClickListener(this)
+            fabExpanded.setOnClickListener(this)
         }
 
         initRecycler()
