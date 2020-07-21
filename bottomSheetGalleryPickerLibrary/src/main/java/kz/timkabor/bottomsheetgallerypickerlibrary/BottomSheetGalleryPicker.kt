@@ -7,6 +7,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -44,6 +45,9 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
     private var multiSelectMax = 6
     private var currentPhotoUri: Uri? = null
 
+    private var screenHeight: Float = Resources.getSystem().displayMetrics.heightPixels.toFloat()
+    private var collapsedTopMarginInDp: Float = 0F
+
     @DimenRes
     private var peekHeight = R.dimen.imagePickerPeekHeight
 
@@ -60,6 +64,28 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
     @StringRes
     private var resTitleMultiLimit = R.string.imagePickerMultiLimit
 
+    @StringRes
+    private var fewFilesChosen = R.string.fewFilesChosen
+
+    private var state: Int = BottomSheetBehavior.STATE_COLLAPSED
+        set(value) {
+            when (value) {
+                BottomSheetBehavior.STATE_COLLAPSED -> {
+                    if (fabExpanded.visibility == View.VISIBLE) {
+                        fabExpanded.visibility = View.INVISIBLE
+                        fabCollapsed.visibility = View.VISIBLE
+                    }
+                }
+                BottomSheetBehavior.STATE_EXPANDED -> {
+                    if (fabCollapsed.visibility == View.VISIBLE) {
+                        fabExpanded.visibility = View.VISIBLE
+                        fabCollapsed.visibility = View.INVISIBLE
+                    }
+                }
+            }
+            field = value
+        }
+
     private val bottomSheetCallback by lazy {
         object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -67,18 +93,42 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                    dismissAllowingStateLoss()
+                state = newState
+                when (newState) {
+                    BottomSheetBehavior.STATE_HIDDEN -> dismissAllowingStateLoss()
                 }
+
             }
         }
     }
 
+    private fun initDimensions() {
+        collapsedTopMarginInDp =
+            (resources.getDimension(peekHeight) / resources.displayMetrics.density)
+        screenHeight = resources.pxToDp(screenHeight.toInt())
+    }
+
+    private fun changeToCollapsedFab() {
+        fabCollapsed.visibility = View.VISIBLE
+        fabExpanded.visibility = View.INVISIBLE
+    }
+
+    private fun changeToExpandedFab() {
+        fabCollapsed.visibility = View.INVISIBLE
+        fabExpanded.visibility = View.VISIBLE
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         loadArguments()
         if (requireContext().hasReadStoragePermission) initLoader()
         else requestReadStoragePermission(REQUEST_PERMISSION_READ_STORAGE)
+
+        if (savedInstanceState != null) {
+            currentPhotoUri = savedInstanceState.getParcelable(STATE_CURRENT_URI)
+        }
     }
 
     private fun initLoader() {
@@ -102,13 +152,15 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
                 bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
                 bottomSheetBehavior.peekHeight = resources.getDimensionPixelSize(peekHeight)
                 bottomSheetBehavior.addBottomSheetCallback(bottomSheetCallback)
-                Random().nextInt()
             }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initDimensions()
+        fabCollapsed.margin(top = collapsedTopMarginInDp - 64)
+
         tvHeader.setOnClickListener {
             if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -117,7 +169,6 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
             }
         }
 
-        btnCamera.setOnClickListener { launchCamera() }
         btnDone.setOnClickListener {
             onImagesSelectedListener?.onImagesSelected(adapter.getSelectedImages())
             dismissAllowingStateLoss()
@@ -125,8 +176,13 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
 
         initRecycler()
 
+        val oldSelection = savedInstanceState?.getIntArray(STATE_SELECTION)
+        if (oldSelection != null) {
+            adapter.selection = oldSelection.toHashSet()
+        }
         selectionCountChanged(adapter.selection.size)
     }
+
 
     private fun selectionCountChanged(count: Int) {
         when {
@@ -135,13 +191,29 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
                 tvHeader.text = resources.getQuantityString(resTitleMultiMore, delta, delta)
             }
             count > multiSelectMax -> tvHeader.text = getString(resTitleMultiLimit, multiSelectMax)
-            else -> tvHeader.text = ""
+            count in listOf(2, 3, 4) -> {
+                tvHeader.text = resources.getString(fewFilesChosen, count)
+            }
+            else -> {
+                tvHeader.text = resources.getQuantityString(resTitleMulti, count, count)
+            }
         }
-        btnDone.isEnabled = count in multiSelectMin..multiSelectMax
-        if (btnDone.isEnabled) btnDone.visibility = View.VISIBLE
-        else btnDone.visibility = View.INVISIBLE
+        if (count in multiSelectMin..multiSelectMax) {
+            if (state == BottomSheetBehavior.STATE_EXPANDED) {
+                fabExpanded.visibility = View.VISIBLE
+                fabCollapsed.visibility = View.INVISIBLE
+                fabExpanded.animate().alpha(1f)
 
-        btnDone.animate().alpha(if (btnDone.isEnabled) 1f else .2f)
+            } else if (state == BottomSheetBehavior.STATE_COLLAPSED) {
+                fabExpanded.visibility = View.INVISIBLE
+                fabCollapsed.visibility = View.VISIBLE
+                fabCollapsed.animate().alpha(1f)
+
+            }
+        } else {
+            fabExpanded.visibility = View.INVISIBLE
+            fabCollapsed.visibility = View.INVISIBLE
+        }
     }
 
     private fun initRecycler() {
@@ -152,7 +224,8 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
 
     private fun onItemClick(item: ClickedGalleryItem) {
         when (item) {
-            is ClickedGalleryItem.VideoItem -> {
+            is ClickedGalleryItem.CameraItem -> {
+                launchCamera()
             }
             is ClickedGalleryItem.ImageItem -> {
                 onImagesSelectedListener?.onImagesSelected(listOf(item.uri))
@@ -176,20 +249,27 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
         data ?: return
         val items = ArrayList<Uri>()
 
-        val columnIndex = data.getColumnIndex(MediaStore.Video.VideoColumns.DATA)
-        Thread().run{
-        while (items.size < MAX_CURSOR_IMAGES && data.moveToNext()) {
-            val itemLocation: String = data.getString(columnIndex)
-            val file = File(itemLocation)
-            println("${file.exists()} and $itemLocation")
 
-            if (file.exists()) {
-                val uri = Uri.fromFile(file)
-                items.add(uri)
+        val columnIndex = data.getColumnIndex(MediaStore.Video.VideoColumns.DATA)
+        Thread().run {
+            while (items.size < MAX_CURSOR_IMAGES && data.moveToNext()) {
+                val itemLocation: String = data.getString(columnIndex)
+                val file = File(itemLocation)
+
+                if (file.exists()) {
+                    val uri = Uri.fromFile(file)
+                    items.add(uri)
+                }
             }
+            data.moveToFirst()
+            adapter.itemList = items
         }
-        adapter.itemList = items
-        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable(STATE_CURRENT_URI, currentPhotoUri)
+        outState.putIntArray(STATE_SELECTION, adapter.selection.toIntArray())
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
@@ -226,6 +306,7 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
         })
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode != Activity.RESULT_OK) {
             super.onActivityResult(requestCode, resultCode, data)
@@ -243,6 +324,7 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
+
     interface OnImagesSelectedListener {
         fun onImagesSelected(uris: List<Uri>)
     }
@@ -339,11 +421,6 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
             this@Builder
         }
 
-        fun cameraButton(type: ButtonType) = args.run {
-            putBoolean(KEY_SHOW_CAMERA_BTN, type == ButtonType.Button)
-            this@Builder
-        }
-
         fun peekHeight(@DimenRes peekHeightRes: Int) = args.run {
             putInt(KEY_PEEK_HEIGHT, peekHeightRes)
             this@Builder
@@ -370,8 +447,4 @@ class BottomSheetGalleryPicker : BottomSheetDialogFragment(),
 
         fun show(fm: FragmentManager, tag: String? = null) = build().show(fm, tag)
     }
-}
-
-enum class ButtonType {
-    None, Button, Tile
 }

@@ -8,12 +8,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.card_image.view.*
-import java.io.File
 
 sealed class ClickedGalleryItem {
     data class ImageItem(val uri: Uri) : ClickedGalleryItem()
-    data class VideoItem(val uri: Uri) : ClickedGalleryItem()
+    object CameraItem : ClickedGalleryItem()
 }
 
 class GalleryAdapter(private val clickListener: (ClickedGalleryItem) -> Unit,
@@ -44,18 +42,26 @@ class GalleryAdapter(private val clickListener: (ClickedGalleryItem) -> Unit,
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseIconViewHolder =
         LayoutInflater
             .from(parent.context)
-            .inflate(R.layout.card_image, parent, false)
-            .let { view -> BaseIconViewHolder(view) }
+            .inflate(
+                if (viewType == VIEW_TYPE_IMAGE) R.layout.card_image else R.layout.card_special,
+                parent, false
+            )
+            .let { view ->
+                when (viewType) {
+                    VIEW_TYPE_IMAGE -> BaseIconViewHolder.VHImageTile(view)
+                    VIEW_TYPE_CAMERA -> BaseIconViewHolder.VHCameraTile(view) {
+                        clickListener.invoke(ClickedGalleryItem.CameraItem)
+                    }
+                    else -> throw IllegalStateException("viewType $viewType not allowed")
+                }
+            }
 
 
-    override fun getItemCount() = itemList.size
+    override fun getItemCount() = itemList.size + 1
 
-    override fun getItemViewType(position: Int): Int {
-        return VIEW_TYPE_IMAGE
-    }
     override fun onBindViewHolder(holder: BaseIconViewHolder, position: Int) {
-        holder.update(
-            itemList[position],
+        (holder as? BaseIconViewHolder.VHImageTile)?.update(
+            itemList[position - 1],
             selection.contains(position),
             ::onImageItemClick
         )
@@ -75,44 +81,61 @@ class GalleryAdapter(private val clickListener: (ClickedGalleryItem) -> Unit,
 
     companion object {
         private const val VIEW_TYPE_IMAGE = 0x1002
-        private const val VIEW_TYPE_VIDEO = 0x1003
+        private const val VIEW_TYPE_CAMERA = 0x1000
+
+    }
+
+    override fun getItemViewType(position: Int): Int = when (position) {
+        0 -> VIEW_TYPE_CAMERA
+        else -> VIEW_TYPE_IMAGE
     }
 }
 
-class BaseIconViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    private val ivImage = view.findViewById<ImageView>(R.id.ivImage)
-    private val ivSelect = view.findViewById<View>(R.id.ivSelect)
-    private val ivDuration = view.findViewById<View>(R.id.durationView)
-    private val ivDurationText = view.findViewById<TextView>(R.id.durationText)
 
-    private var clickListener: ((selectView: View, position: Int) -> Unit)? = null
+sealed class BaseIconViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class VHImageTile(view: View) : BaseIconViewHolder(view) {
+        private val ivImage = view.findViewById<ImageView>(R.id.ivImage)
+        private val ivSelect = view.findViewById<View>(R.id.ivSelect)
+        private val ivDuration = view.findViewById<View>(R.id.durationView)
+        private val ivDurationText = view.findViewById<TextView>(R.id.durationText)
 
-    init {
-        view.setOnClickListener { clickListener?.invoke(ivSelect, adapterPosition) }
+        private var clickListener: ((selectView: View, position: Int) -> Unit)? = null
+
+        init {
+            view.setOnClickListener { clickListener?.invoke(ivSelect, adapterPosition) }
+        }
+
+        fun update(
+            uri: Uri,
+            selected: Boolean,
+            clickListener: (selectView: View, position: Int) -> Unit
+        ) {
+            this.clickListener = clickListener
+            if (uri.isVideo()) {
+                ivDuration.visibility = View.VISIBLE
+                ivDurationText.text = uri.getMediaDuration(ivDurationText.context).asData()
+            } else {
+                ivDuration.visibility = View.INVISIBLE
+            }
+
+            if (selected) ivSelect.visibility = View.VISIBLE
+            else ivSelect.visibility = View.INVISIBLE
+
+            Glide
+                .with(ivImage)
+                .load(uri)
+                .error(R.drawable.ic_broken_image)
+                .into(ivImage)
+        }
+
     }
 
-    fun update(
-        uri: Uri,
-        selected: Boolean,
-        clickListener: (selectView: View, position: Int) -> Unit
-    ) {
-        this.clickListener = clickListener
-        if (uri.isVideo()) {
-            ivDuration.visibility = View.VISIBLE
-            ivDurationText.text = uri.getMediaDuration(ivDurationText.context).asData()
+    class VHCameraTile(view: View, clickListener: () -> Unit) : BaseIconViewHolder(view) {
+        init {
+            view.setOnClickListener { clickListener.invoke() }
+            view.findViewById<ImageView>(R.id.ivIcon)
+                .setImageResource(R.drawable.baseline_camera_alt_black_48)
         }
-        else {
-            ivDuration.visibility = View.INVISIBLE
-        }
-
-        if (selected) ivSelect.visibility = View.VISIBLE
-        else ivSelect.visibility = View.INVISIBLE
-
-        Glide
-            .with(ivImage)
-            .load(uri)
-            .error(R.drawable.ic_broken_image)
-            .into(ivImage)
     }
 }
 

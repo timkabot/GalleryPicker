@@ -6,6 +6,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -31,8 +32,9 @@
                 android:gravity="center_vertical"
                 android:paddingStart="16dp"
                 android:paddingEnd="0dp"
-                tools:text="Hello world"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@android:color/black"
+                tools:text="Hello world" />
 
 
             <androidx.appcompat.widget.AppCompatImageButton
@@ -42,17 +44,6 @@
                 android:background="?selectableItemBackgroundBorderless"
                 android:src="@drawable/tick"
                 android:visibility="gone"
-                tools:visibility="visible" />
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/btnCamera"
-                android:layout_width="?android:attr/listPreferredItemHeightSmall"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:background="?selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_camera_btn"
-                android:tint="#e5243f"
-                android:visibility="visible"
                 tools:visibility="visible" />
         </LinearLayout>
 
@@ -65,8 +56,44 @@
             android:paddingStart="0dp"
             android:paddingEnd="@dimen/imagePickerTileSpacing"
             android:paddingBottom="@dimen/imagePickerTileSpacing"
+            android:background="@android:color/white"
             android:scrollbarStyle="outsideOverlay"
             tools:listitem="@layout/card_image" />
 
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabCollapsed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#64a70b"
+        android:text="Прикрепить файлы"
+        android:textColor="@android:color/white"
+        android:visibility="gone"
+        app:fabCustomSize="60dp"
+        app:icon="@drawable/tick"
+        app:iconTint="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabExpanded"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        android:backgroundTint="#64a70b"
+        android:text="Прикрепить файлы"
+        android:textColor="@android:color/white"
+        android:visibility="gone"
+        app:fabCustomSize="60dp"
+        app:icon="@drawable/tick"
+        app:iconTint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

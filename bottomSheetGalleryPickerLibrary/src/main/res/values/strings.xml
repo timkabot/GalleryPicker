@@ -1,19 +1,21 @@
 <resources>
-    <string name="galleryPickerLoading">Загрузка…</string>
     <string name="toastGalleryPickerNoWritePermission">Нужно разрешение на редактирование файлов</string>
     <string name="imagePickerLoading">Загрузка…</string>
     <string name="imagePickerMultiLimit">Вы не можете выбрать больше чем %1$d файлов</string>
 
+    <string name="fewFilesChosen">Выбрано %1$d файла</string>
 
-<!--    Plurals     -->
+    <!--    Plurals     -->
     <plurals name="imagePickerMulti">
-        <item quantity="one">Вы выбрали 1 файл</item>
-        <item quantity="two">Вы выбрали 2 файла</item>
-        <item quantity="few">Вы выбрали %1$d файла</item>
-        <item quantity="other">Вы выбрали %1$d файлов</item>
+        <item quantity="one">Выбран 1 файл</item>
+        <item quantity="two">Выбран 2 файла</item>
+
+        <item quantity="few">Выбрано %1$d файла</item>
+        <item quantity="other">Выбрано %1$d файлов</item>
     </plurals>
+
     <plurals name="imagePickerMultiMore">
-        <item quantity="one">Выберите файлы</item>
+        <item quantity="one">Выберите файлы для загрузки</item>
         <item quantity="other">Нужно выбрать %1$d файлов</item>
     </plurals>
 
