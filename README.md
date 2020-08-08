@@ -22,11 +22,13 @@ Project must be cimoatble with java 1.8
 ## Features
 
 1. select single/multiple images or videos right in the bottom sheet
-2. use camera to take a picture
+2. use camera with camera preview to take a picture 
 3. handles all permission requests
 
 This library is based on [bottomsheet-imagepicker](https://github.com/kroegerama/bottomsheet-imagepicker).
-Removed camera and gallery tiles and added support of video
+Changed design:
+    Removed camera and gallery tiles
+    Added support of video, also added camera preview
 
 ## How to Use
 
@@ -51,28 +53,12 @@ And then add the below to your app's build.gradle:
     implementation 'implementation 'com.github.timkabot:GalleryPicker:<version>'
 ```
 
-
-### Step 1: Implement the callback handler
-
-The caller Activity or Fragment has to implement `BottomSheetImagePicker.OnImagesSelectedListener` to receive the selection callbacks. It will automatically be used by the image picker. No need to register a listener.
-
-##### Kotlin
-
-```kotlin
-class AcMain: BaseActivity(), BottomSheetGalleryPicker.OnImagesSelectedListener {
-    //...
-
-    override fun onImagesSelected(uris: List<Uri>, tag: String?) {
-        // Do something with selected files
-    }
-}
 ```
 
-### Step 2: Create the image picker using the Builder
+### Create the image picker using the Builder
 
 The setters are all **optional** and the builder will fallback to default values.
 
-#### single select
 ##### Kotlin
 
 ```kotlin
