@@ -1,0 +1,23 @@
+ext.dep_versions = [
+        /**ANDROIDX**/
+        androidx_core             : '1.3.1',
+        androidx_arch_core        : '2.1.0',
+        androidx_collection       : '1.1.0',
+        androidx_coordinatorlayout: '1.1.0',
+        androidx_fragment         : '1.2.2',
+        androidx_appcompat        : '1.1.0',
+        androidx_constraint       : '2.0.0-rc1',
+        androidx_lifecycle        : '2.2.0',
+        androidx_espresso         : '3.2.0',
+        androidx_test_runner      : '1.2.0',
+        androidx_ext_junit        : '1.1.1',
+        androidx_test             : '1.2.0',
+        junit                     : '4.13',
+        camerax_version           : '1.0.0-beta07',
+
+/**********/
+        material                  : '1.3.0-alpha02',
+        android_core_testing      : '1.1.1',
+        glide                     : '4.11.0',
+        recycler_view             : '1.1.0'
+]

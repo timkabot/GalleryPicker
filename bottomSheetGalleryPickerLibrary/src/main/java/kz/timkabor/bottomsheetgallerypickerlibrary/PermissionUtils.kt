@@ -12,11 +12,29 @@ private fun Context.isPermissionGranted(permission: String) =
 
 internal val Context.hasReadStoragePermission get() = isPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE)
 internal val Context.hasWriteStoragePermission get() = isPermissionGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+internal val Context.hasCameraPermission get() = isPermissionGranted(Manifest.permission.CAMERA)
+
 
 private fun Fragment.requestPermission(permission: String, requestCode: Int) {
-    if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
     if (context?.isPermissionGranted(permission) == true) return
     requestPermissions(arrayOf(permission), requestCode)
+}
+
+internal fun Fragment.requestReadStorageAndCameraPreviewPermission(requestCode: Int) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+    if (requireContext().isPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE)
+        && requireContext().isPermissionGranted(Manifest.permission.CAMERA)
+    ) {
+        return
+    }
+
+    requestPermissions(
+        arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+        ), requestCode
+    )
 }
 
 internal fun Fragment.requestReadStoragePermission(requestCode: Int) =

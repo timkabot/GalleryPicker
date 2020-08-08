@@ -1,0 +1,6 @@
+ext.android_versions = [
+        compile_sdk: 29,
+        min_sdk    : 21,
+        target_sdk : 29,
+        build_tool : '28.0.3'
+]

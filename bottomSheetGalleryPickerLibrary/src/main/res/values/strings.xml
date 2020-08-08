@@ -1,22 +1,18 @@
 <resources>
     <string name="toastGalleryPickerNoWritePermission">Нужно разрешение на редактирование файлов</string>
     <string name="imagePickerLoading">Загрузка…</string>
-    <string name="imagePickerMultiLimit">Вы не можете выбрать больше чем %1$d файлов</string>
+    <string name="imagePickerMultiLimit">Вы не можете выбрать больше %1$d файлов</string>
 
     <string name="fewFilesChosen">Выбрано %1$d файла</string>
+    <string name="attach_files">Прикрепить файлы</string>
+    <string name="read_storage_permission_is_necessary">Для добавления фото/видео необходим доступ к галереи</string>
+    <string name="camera_and_storage_permission_is_necessary">Для добавления фото/видео и показа превью камеры необходим доступ к галереи и доступ к камере соответственно</string>
 
     <!--    Plurals     -->
     <plurals name="imagePickerMulti">
         <item quantity="one">Выбран 1 файл</item>
-        <item quantity="two">Выбран 2 файла</item>
-
         <item quantity="few">Выбрано %1$d файла</item>
         <item quantity="other">Выбрано %1$d файлов</item>
-    </plurals>
-
-    <plurals name="imagePickerMultiMore">
-        <item quantity="one">Выберите файлы для загрузки</item>
-        <item quantity="other">Нужно выбрать %1$d файлов</item>
     </plurals>
 
 </resources>
